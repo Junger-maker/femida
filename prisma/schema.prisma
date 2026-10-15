@@ -1,0 +1,179 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("TURSO_DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  password      String
+  name          String?
+  role          String    @default("editor")
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ContactInfo {
+  id          String   @id @default(cuid())
+  addressRu   String   @default("")
+  addressEn   String   @default("")
+  phone       String   @default("")
+  email       String   @default("")
+  workHoursRu String   @default("")
+  workHoursEn String   @default("")
+  mapLat      Float?
+  mapLng      Float?
+  updatedAt   DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Slide {
+  id          String   @id @default(cuid())
+  titleRu     String
+  titleEn     String   @default("")
+  subtitleRu  String   @default("")
+  subtitleEn  String   @default("")
+  imageUrl    String   @default("")
+  cloudStoragePath String @default("")
+  isPublic    Boolean  @default(true)
+  linkUrl     String   @default("")
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  nameRu      String
+  nameEn      String   @default("")
+  positionRu  String
+  positionEn  String   @default("")
+  bioRu       String   @default("")
+  bioEn       String   @default("")
+  imageUrl    String   @default("")
+  cloudStoragePath String @default("")
+  isPublic    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  titleRu       String
+  titleEn       String   @default("")
+  descriptionRu String   @default("")
+  descriptionEn String   @default("")
+  contentRu     String   @default("")
+  contentEn     String   @default("")
+  category      String
+  year          Int      @default(2024)
+  imageUrl      String   @default("")
+  cloudStoragePath String @default("")
+  isPublic      Boolean  @default(true)
+  published     Boolean  @default(true)
+  metaTitleRu   String   @default("")
+  metaTitleEn   String   @default("")
+  metaDescRu    String   @default("")
+  metaDescEn    String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Service {
+  id            String   @id @default(cuid())
+  titleRu       String
+  titleEn       String   @default("")
+  descriptionRu String   @default("")
+  descriptionEn String   @default("")
+  iconName      String   @default("scale")
+  sortOrder     Int      @default(0)
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Article {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  titleRu       String
+  titleEn       String   @default("")
+  excerptRu     String   @default("")
+  excerptEn     String   @default("")
+  contentRu     String   @default("")
+  contentEn     String   @default("")
+  imageUrl      String   @default("")
+  cloudStoragePath String @default("")
+  isPublic      Boolean  @default(true)
+  tags          String   @default("[]")
+  published     Boolean  @default(true)
+  publishedAt   DateTime @default(now())
+  metaTitleRu   String   @default("")
+  metaTitleEn   String   @default("")
+  metaDescRu    String   @default("")
+  metaDescEn    String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String   @default("")
+  subject   String   @default("")
+  message   String
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @default("")
+}
